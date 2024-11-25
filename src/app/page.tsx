@@ -1,56 +1,137 @@
 "use client";
 
 import Image from "next/image";
-import { ConnectButton } from "thirdweb/react";
-import thirdwebIcon from "@public/thirdweb.svg";
+import { ConnectButton, MediaRenderer, useActiveAccount, useReadContract } from "thirdweb/react";
+// import thirdwebIcon from "@public/thirdweb.svg";
+import dprojectIcon from "@public/Logo_DProject.svg";
 import { client } from "./client";
+import { inAppWallet } from "thirdweb/wallets";
+import { chain } from "./chain";
+import { getContractMetadata } from "thirdweb/extensions/common";
+import { contract } from "../../utils/contracts";
 
 export default function Home() {
-  return (
-    <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
-      <div className="py-20">
-        <Header />
+  const account = useActiveAccount ();
 
-        <div className="flex justify-center mb-20">
-          <ConnectButton
-            client={client}
-            appMetadata={{
-              name: "Example App",
-              url: "https://example.com",
-            }}
-          />
-        </div>
-
-        <ThirdwebResources />
-      </div>
-    </main>
+  const { data: contractMetadata } = useReadContract(
+    getContractMetadata,
+    {
+      contract: contract,
+    }
   );
+
+  if(!account){
+    return (
+      <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
+        <div className="py-20">
+          <Header />
+
+          <div className="flex justify-center mb-20">
+          <ConnectButton locale={"en_US"}
+              client={client}
+              wallets={[ inAppWallet ({
+                auth: {
+                  options: [
+                    "email",
+                    "phone",
+                  ]
+                }
+              }
+              ) ]}
+            />
+            <p>&nbsp;&nbsp;</p>
+            <ConnectButton locale={"de_DE"}
+              client={client}
+              appMetadata={{
+                name: "Example App",
+                url: "https://example.com",
+              }}
+            />
+          </div>
+
+          <ThirdwebResources />
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+    }}>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        border: "1px solid #333",
+        borderRadius: "8px",
+      }}>
+        <ConnectButton locale={"en_US"}
+          client={client}
+          chain={chain}
+        />
+        {contractMetadata && (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            marginTop: "20px",
+          }}>
+            <MediaRenderer
+              client={client}
+              src={contractMetadata.image}
+              style={{
+                borderRadius: "8px",
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function Header() {
   return (
     <header className="flex flex-col items-center mb-20 md:mb-20">
-      <Image
+      {/* <Image
         src={thirdwebIcon}
         alt=""
         className="size-[150px] md:size-[150px]"
         style={{
           filter: "drop-shadow(0px 0px 24px #a726a9a8)",
         }}
-      />
+      /> */}
 
+      <Image
+        src={dprojectIcon}
+        alt=""
+        className="size-[150px] md:size-[150px]"
+        style={{
+          filter: "drop-shadow(0px 0px 24px #a726a9a8)",
+        }}
+      />
+      <p>&nbsp;&nbsp;</p>
       <h1 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
-        thirdweb SDK
+        dProject Login
         <span className="text-zinc-300 inline-block mx-1"> + </span>
-        <span className="inline-block -skew-x-6 text-blue-500"> Next.js </span>
+        <span className="inline-block -skew-x-6 text-blue-500"> Register </span>
       </h1>
 
       <p className="text-zinc-300 text-base">
-        Read the{" "}
+        ล็อกอินด้วยเบอร์โทรศัพท์มือถือ แล้วรอรับ{" "}
         <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
-          README.md
+          OTP
         </code>{" "}
-        file to get started.
+        จากนำมากรอกในช่องด้านล่าง
       </p>
     </header>
   );
