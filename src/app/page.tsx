@@ -11,6 +11,7 @@ import { getContractMetadata } from "thirdweb/extensions/common";
 import { contract } from "../../utils/contracts";
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
 export default function Home() {
   const account = useActiveAccount ();
@@ -28,6 +29,18 @@ export default function Home() {
     throw 'Did you forget to add a ".env.local" file?';
   }
   const stripe = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
+
+  const onClick = async () => {
+    const res = await fetch("/api/stripe-intent", {
+      method: "POST",
+      headers: { "Content-Type": "aplication/json" },
+      body: JSON.stringify({ buyerWalletAddress: account?.address })
+    });
+    if (res.ok){
+      const json = await res.json();
+      setClientSecret(json.clientSecret);
+    }
+  };
 
   if(!account){
     return (
@@ -104,6 +117,8 @@ export default function Home() {
         )}
         {!clientSecret ? (
           <button
+            // onClick={onClick}
+            // disabled={!account}
             style={{
               marginTop: "20px",
               padding: "1rem 2rem",
@@ -115,12 +130,54 @@ export default function Home() {
             }}
           >ซื้อคูปอง</button>
         ) : (
-          <></>
+          <Elements
+            options={{
+              clientSecret: clientSecret,
+              appearance: { theme: "night" }
+            }}
+            stripe={stripe}
+          >
+            <CreditCardForm />
+          </Elements>
         )}
       </div>
     </div>
   )
 }
+
+const CreditCardForm = () => {
+  const elements = useElements();
+  const stripe = useStripe();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCoplete, setIscomplete] = usState<boolean>(false);
+
+  return (
+    <>
+    <PaymentElement />
+    <button
+    disabled={isLoading || isCoplete || !stripe || !elements}
+      style={{
+        marginTop: "20px",
+        padding: "1rem 2rem",
+        borderRadius: "8px",
+        border: "none",
+        backgroundColor: "royalblue",
+        width: "100%",
+        cursor: "pointer",
+      }}
+    >
+      {
+        isCoplete
+        ? "การชำระเงินสมบูรณ์"
+        : isLoading
+        ? "อยู่ระหว่างการชำระเงิน..."
+        : "ชำระเงิน"
+      }
+    </button>
+    </>
+  )
+};
+
 
 function Header() {
   return (
