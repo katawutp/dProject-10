@@ -149,7 +149,7 @@ const CreditCardForm = () => {
   const elements = useElements();
   const stripe = useStripe();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isCoplete, setIscomplete] = usState<boolean>(false);
+  const [isCoplete, setIscomplete] = useState<boolean>(false);
 
   return (
     <>
