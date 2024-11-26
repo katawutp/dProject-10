@@ -9,9 +9,13 @@ import { inAppWallet } from "thirdweb/wallets";
 import { chain } from "./chain";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { contract } from "../../utils/contracts";
+import { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
 
 export default function Home() {
   const account = useActiveAccount ();
+
+  const [clientSecret, setClientSecret] = useState<string>("");
 
   const { data: contractMetadata } = useReadContract(
     getContractMetadata,
@@ -19,6 +23,11 @@ export default function Home() {
       contract: contract,
     }
   );
+
+  if(!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+    throw 'Did you forget to add a ".env.local" file?';
+  }
+  const stripe = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
 
   if(!account){
     return (
@@ -94,6 +103,21 @@ export default function Home() {
             />
           </div>
         )}
+        {!clientSecret ? (
+          <button
+            style={{
+              marginTop: "20px",
+              padding: "1rem 2rem",
+              borderRadius: "8px",
+              border: "none",
+              backgroundColor: "royalblue",
+              width: "100%",
+              cursor: "pointer",
+            }}
+          >ซื้อคูปอง</button>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   )
@@ -131,7 +155,7 @@ function Header() {
         <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
           OTP
         </code>{" "}
-        จากนำมากรอกในช่องด้านล่าง
+        นำมากรอกในช่องด้านล่าง
       </p>
     </header>
   );
