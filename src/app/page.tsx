@@ -41,21 +41,20 @@ export default function Home() {
               wallets={[ inAppWallet ({
                 auth: {
                   options: [
-                    "email",
                     "phone",
                   ]
                 }
               }
               ) ]}
             />
-            <p>&nbsp;&nbsp;</p>
+            {/* <p>&nbsp;&nbsp;</p>
             <ConnectButton locale={"de_DE"}
               client={client}
               appMetadata={{
                 name: "Example App",
                 url: "https://example.com",
               }}
-            />
+            /> */}
           </div>
 
           <ThirdwebResources />
